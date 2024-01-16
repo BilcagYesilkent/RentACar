@@ -1,0 +1,1 @@
+Sunum katmanýndan gelen bilgileri/istekleri gerekli iþ koþullarýna gore iþleyip denetimini gerçekleþtiren katmanýmýz.

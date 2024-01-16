@@ -1,0 +1,1 @@
+Entities, Domain'de (Ýþ alaný) yer alan varlýklarý içeren, bunlarla ilgilenen katmandýr. Bu katman, veri tabaný ile doðrudan iletiþim kurmaz, veri tabaný nesnelerini barýndýrýr.

@@ -1,0 +1,1 @@
+RentACar dýþýnda da, diðer yazýlým projelerinde kullanmak üzere ortak kodlarý bu katmanda saklayabiliriz.
