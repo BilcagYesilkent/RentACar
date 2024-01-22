@@ -2,18 +2,20 @@
 using Business.Requests.Fuel;
 using Business.Responses.Fuel;
 using Entities.Concrete;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class FuelController : ControllerBase
+public class FuelsController : ControllerBase
 {
     private readonly IFuelService _fuelService;
-    public FuelController()
+
+    public FuelsController()
     {
-        _fuelService = ServiceRegistration.FuelService;
+        //_fuelService = ServiceRegistration.FuelService;
     }
 
     [HttpGet]
@@ -23,11 +25,12 @@ public class FuelController : ControllerBase
         return fuelList;
     }
 
+
     [HttpPost]
     public ActionResult<AddFuelResponse> Add(AddFuelRequest request)
     {
-        AddFuelResponse response = _fuelService.Add(request);
 
+        AddFuelResponse response = _fuelService.Add(request);
         return CreatedAtAction(nameof(GetList), response);
     }
 }

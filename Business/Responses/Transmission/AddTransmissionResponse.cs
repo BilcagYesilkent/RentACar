@@ -1,13 +1,22 @@
-﻿namespace Business.Responses.Transmission;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public class AddTransmissionResponse
+namespace Business.Responses.Transmission
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-
-    public AddTransmissionResponse(int id, string name)
+    public class AddTransmissionResponse
     {
-        Id = id;
-        Name = name;
+        public AddTransmissionResponse(int id, string name, DateTime createdDate)
+        {
+            Id = id;
+            Name = name;
+            CreatedDate = createdDate;
+        }
+
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public DateTime CreatedDate { get; set; }
     }
 }
