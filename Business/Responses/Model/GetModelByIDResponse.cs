@@ -1,6 +1,6 @@
-﻿namespace Business;
+﻿namespace Business.Responses.Model;
 
-public class ModelListItemDto
+public class GetModelByIdResponse
 {
     public int Id { get; set; }
     public int BrandId { get; set; }

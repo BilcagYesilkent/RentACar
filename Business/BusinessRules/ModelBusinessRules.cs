@@ -1,12 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Core.CrossCuttingConcerns.Exceptions;
+using DataAccess.Abstract;
 
-namespace Business.BusinessRules;
+namespace Business;
 
 public class ModelBusinessRules
-
 {
+    private readonly IModelDal _modelDal;
+
+    public ModelBusinessRules(IModelDal modelDal)
+    {
+        _modelDal = modelDal;
+    }
+
+    public void CheckIfModelNameExists(string name)
+    {
+        bool isNameExists = _modelDal.Get(m => m.Name == name) != null;
+        if (isNameExists)
+            throw new BusinessException("Model name already exists.");
+    }
 }
