@@ -1,104 +1,136 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Net.Mime;
+using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Json;
-using System.Net.Http;
-using System.Net.Mime;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
-namespace Core.CrossCuttingConcerns.Exceptions
+namespace Core.CrossCuttingConcerns.Exceptions;
+
+// Middleware'ler arasında bir sonraki adıma geçişi sağlar.
+public class ExceptionMiddleware
 {
-    //Middleware'ler arasında bir sonraki adıma geçişi sağlar.
-    public class ExceptionMiddleware
+    private readonly RequestDelegate _next;
+
+    public ExceptionMiddleware(RequestDelegate next)
     {
-        private readonly RequestDelegate _next;
-        public ExceptionMiddleware(RequestDelegate next)
+        // Delegate: Bir kod bütününü temsil eder.
+        // RequestDelegate: Bir HTTP Request akışındaki bir sonraki adımı temsil eder.
+        _next = next;
+    }
+
+    public async Task InvokeAsync(HttpContext httpContext)
+    {
+        // HttpContext: Bir HTTP Request akışını temsil eder.
+        // Asynchronous Programing: Eş zamanlı programlama
+        // async: Bir metodu eş zamanlı hale getirir. await kullanılacaksa eklenmesi gerekir.
+        // Task: Bir asenkron işlemi temsil eder.
+
+        try
         {
+            //AddBrandResponse response = _brandService.Add(request);
+            //return CreatedAtAction(nameof(GetList), response); // 201 Created
 
-            //Delegate : Bir kod bütnünü temsil eder.
-            //RequestDelegate : Bir HTTP Request  akışındaki bir sonraki adımı temsil eder.
+            // Örnek olarak add endpoint metodundaki kodların referansı _next'tedir.
 
-            _next = next;
-
+            await _next(httpContext);
+            // await: Bir sonraki adımın tamamlanmasını bekler.
         }
-
-        //Invoke isminde bir metod arayacak
-        //Geriye Task dönüyor async yapmamız lazım
-        public async Task InvokeAsync(HttpContext httpContext)
+        catch (Exception exception)
         {
-            //HttpContext : Bir HTTP Request akışını temsil eder.
-            //Asynchronous : Eş zamanlı olarak 
-            //Synchronous  : Sırasıyla 
-            //async : Bir metodu eş zamanlı hale getirir. await kullanaca
-            // Task: Bir asenkron işlemi temsil eder.
+            await handleExceptionAsync(httpContext, exception);
+        }
+    }
 
-            try
+    private Task handleExceptionAsync(HttpContext httpContext, Exception exception)
+    {
+        httpContext.Response.ContentType = MediaTypeNames.Application.Json;
+        //if (exception.GetType() == typeof(BusinessException))
+        //{
+        //    BusinessException businessException = (BusinessException)exception; // casting
+        //    return createBusinessProblemDetailsResponse(httpContext, businessException);
+        //}
+
+        if (exception is BusinessException businessException)
+            return createBusinessProblemDetailsResponse(httpContext, businessException);
+
+        if (exception is NotFoundException notFoundException)
+            return createNotFoundProblemDetailsResponse(httpContext, notFoundException);
+
+        if (exception is ValidationException validationException)
+            return createValidationProblemDetailsResponse(httpContext, validationException);
+
+        return createInternalProblemDetailsResponse(httpContext, exception);
+    }
+
+    private Task createValidationProblemDetailsResponse(
+        HttpContext httpContext,
+        ValidationException validationException
+    )
+    {
+        httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+
+        ValidationProblemDetails validationProblemDetails =
+            new(
+                type: "https://doc.rentacar.com/validation-error",
+                title: "Validation Error",
+                instance: httpContext.Request.Path,
+                detail: "Please refer to the errors property for additional details.",
+                errors: validationException
+                    .Errors.GroupBy(e => e.PropertyName, e => e.ErrorMessage)
+                    .ToDictionary(
+                        failureGroup => failureGroup.Key,
+                        failureGroup => failureGroup.ToArray()
+                    )
+            )
             {
-                //AddBrandResponse response = _brandService.Add(request);
-                //return CreatedAtAction(nameof(GetList), response);
+                Status = StatusCodes.Status400BadRequest
+            };
+        return httpContext.Response.WriteAsync(validationProblemDetails.ToString());
+    }
 
-                //Örnek olarak add endpoint metodundaki kodların referansı _next'tedir.
-                await _next(httpContext);
-                //await : Bir sonraki adımın tamamlanmasını bekler.
-            }
+    private Task createNotFoundProblemDetailsResponse(
+        HttpContext httpContext,
+        NotFoundException notFoundException
+    )
+    {
+        httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
 
-
-            catch (Exception exception)
+        NotFoundProblemDetails notFoundProblemDetails =
+            new()
             {
-                await handleExceptionAsync(httpContext, exception);
+                Title = "Not Found",
+                Type = "https://doc.rentacar.com/not-found",
+                Status = StatusCodes.Status404NotFound,
+                Detail = notFoundException.Message,
+                Instance = httpContext.Request.Path
+            };
+        return httpContext.Response.WriteAsync(notFoundProblemDetails.ToString());
+    }
 
-
-            }
-        }
-        private Task handleExceptionAsync(HttpContext httpContext, Exception exception)
-        {
-            httpContext.Response.ContentType = MediaTypeNames.Application.Json;
-
-
-            //Aşağıdaki iki if'te aynı işlevi görüyor
-
-            //1.) Eski Hali;
-
-            //if (exception.GetType() == typeof(BusinessException))
-            //{
-            //BusinessException businessException = (BusinessException)exception; //casting
-            //return createBusinessProblemDetailsResponse(httpContext, businessException);
-            //}
-
-            //2.) Yeni Hali;
-
-            if (exception is BusinessException businessException)
-                return createBusinessProblemDetailsResponse(httpContext, businessException);
-
-            return createInternalProblemDetailsResponse(httpContext, exception);
-        }
-
-        private Task createBusinessProblemDetailsResponse(HttpContext httpContext, BusinessException exception)
-        {
-
-            httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-            BusinessProblemDetails businessProblemDetails = new()
-
+    private Task createBusinessProblemDetailsResponse(
+        HttpContext httpContext,
+        BusinessException exception
+    )
+    {
+        httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+        BusinessProblemDetails businessProblemDetails =
+            new()
             {
                 Title = "Business Exception",
-                Type = "http://doc.rentacar.com/business",
+                Type = "https://doc.rentacar.com/business",
                 Status = StatusCodes.Status400BadRequest,
                 Detail = exception.Message,
                 Instance = httpContext.Request.Path
             };
 
-            return httpContext.Response.WriteAsync(businessProblemDetails.ToString());
-        }
+        return httpContext.Response.WriteAsync(businessProblemDetails.ToString());
+    }
 
-        private Task createInternalProblemDetailsResponse(HttpContext httpContext, Exception exception)
-        {
-            httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            ProblemDetails problemDetails = new()
+    private Task createInternalProblemDetailsResponse(HttpContext httpContext, Exception exception)
+    {
+        httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        ProblemDetails problemDetails =
+            new()
             {
                 Title = "Internal Server Error",
                 Type = "https://doc.rentacar.com/internal",
@@ -107,8 +139,6 @@ namespace Core.CrossCuttingConcerns.Exceptions
                 Instance = httpContext.Request.Path
             };
 
-            return httpContext.Response.WriteAsync(JsonConvert.SerializeObject(problemDetails));
-        }
-
+        return httpContext.Response.WriteAsync(JsonConvert.SerializeObject(problemDetails));
     }
 }

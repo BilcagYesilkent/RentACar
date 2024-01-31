@@ -4,6 +4,8 @@ namespace Entities.Concrete;
 
 public class Model : Entity<int>
 {
+    public static Model updatedModel;
+
     public int BrandId { get; set; } // normalizasyon
     public int FuelId { get; set; }
     public int TransmissionId { get; set; }

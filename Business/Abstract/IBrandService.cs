@@ -8,5 +8,5 @@ public interface IBrandService
 {
     public AddBrandResponse Add(AddBrandRequest request);
 
-    public IList<Brand> GetList();
+    public IList<Brand> GetList(GetBrandListRequest request);
 }

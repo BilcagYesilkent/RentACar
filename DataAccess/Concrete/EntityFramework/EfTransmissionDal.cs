@@ -1,4 +1,5 @@
-﻿using DataAccess.Abstract;
+﻿using Core.DataAccess;
+using DataAccess.Abstract;
 using Entities.Concrete;
 using System;
 using System.Collections.Generic;
@@ -10,27 +11,27 @@ namespace DataAccess.Concrete.EntityFramework;
 
 internal class EfTransmissionDal : ITransmissionDal
 {
-    public void Add(Transmission entity)
+    public Transmission Add(Transmission entity)
     {
         throw new NotImplementedException();
     }
 
-    public void Delete(Transmission entity)
+    public Transmission Delete(Transmission entity, bool isSoftDelete = true)
     {
         throw new NotImplementedException();
     }
 
-    public Transmission? GetById(int id)
+    public Transmission? Get(Func<Transmission, bool> predicate)
     {
         throw new NotImplementedException();
     }
 
-    public IList<Transmission> GetList()
+    public IList<Transmission> GetList(Func<Transmission, bool>? predicate = null)
     {
         throw new NotImplementedException();
     }
 
-    public void Update(Transmission entity)
+    public Transmission Update(Transmission entity)
     {
         throw new NotImplementedException();
     }

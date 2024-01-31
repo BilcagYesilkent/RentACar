@@ -14,4 +14,5 @@ public class Brand : Entity<int>
     {
         Name = name;
     }
+    public ICollection<Model> Models { get; set; } = null;
 }

@@ -48,7 +48,7 @@ public class BrandsController : ControllerBase
     public GetBrandListResponse GetList([FromQuery] GetBrandListRequest request) // Referans tipleri varsayılan olarak request body'den alır.
     {
 
-        GetBrandListResponse response = _brandService.GetList(request);
+        GetBrandListResponse response = (GetBrandListResponse)_brandService.GetList(request);
         return response; //JSON
     }
 

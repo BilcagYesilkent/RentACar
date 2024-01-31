@@ -51,4 +51,9 @@ public class BrandManager : IBrandService
         IList<Brand> brandList = _brandDal.GetList();
         return brandList;
     }
+
+    public IList<Brand> GetList(GetBrandListRequest request)
+    {
+        throw new NotImplementedException();
+    }
 }

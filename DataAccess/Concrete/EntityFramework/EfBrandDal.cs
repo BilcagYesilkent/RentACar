@@ -11,7 +11,7 @@ internal class EfBrandDal : IBrandDal
         throw new NotImplementedException();
     }
 
-    public Brand Delete(Brand entity)
+    public Brand Delete(Brand entity, bool softDelete)
     {
         throw new NotImplementedException();
     }
@@ -36,18 +36,18 @@ internal class EfBrandDal : IBrandDal
         throw new NotImplementedException();
     }
 
-    void IEntityRepository<Brand, int>.Add(Brand entity)
-    {
-        throw new NotImplementedException();
-    }
+    //void IEntityRepository<Brand, int>.Add(Brand entity)
+    //{
+    //    throw new NotImplementedException();
+    //}
 
-    void IEntityRepository<Brand, int>.Delete(Brand entity)
-    {
-        throw new NotImplementedException();
-    }
+    //void IEntityRepository<Brand, int>.Delete(Brand entity)
+    //{
+    //    throw new NotImplementedException();
+    //}
 
-    void IEntityRepository<Brand, int>.Update(Brand entity)
-    {
-        throw new NotImplementedException();
-    }
+    //void IEntityRepository<Brand, int>.Update(Brand entity)
+    //{
+    //    throw new NotImplementedException();
+    //}
 }
